@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 
 const Signup = () => {
   const navigate = useNavigate();
 
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -46,79 +46,84 @@ const Signup = () => {
 
       const res = await authService.signup(formData);
 
-      alert(res.data.message);
+      alert("Signup successful");
 
       navigate('/login');
 
     } catch (err) {
-      setError("Signup failed");
+      setError(err.response?.data?.message || "Signup failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <Link to="/"><FiArrowLeft /> Back</Link>
+    <div className="su-page">
+      <div className="su-left">
 
-      <h1>Create Account</h1>
+        <Link to="/" className="su-back-link">
+          <FiArrowLeft /> Back
+        </Link>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <h1>Create Account</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          autoComplete="name"
-          required
-        />
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <input
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleChange}
+            autoComplete="name"
+            required
+          />
 
-        <input
-          name="phone"
-          placeholder="Phone"
-          value={formData.phone}
-          onChange={handleChange}
-          autoComplete="tel"
-          required
-        />
+          <input
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            autoComplete="email"
+            required
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          autoComplete="new-password"
-          required
-        />
+          <input
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            autoComplete="tel"
+            required
+          />
 
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          autoComplete="new-password"
-          required
-        />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            autoComplete="new-password"
+            required
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Signup"}
-        </button>
-      </form>
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            autoComplete="new-password"
+            required
+          />
 
-      <p>Already have account? <Link to="/login">Login</Link></p>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Signup"} <FiArrowRight />
+          </button>
+        </form>
+
+        <p>Already have account? <Link to="/login">Login</Link></p>
+      </div>
     </div>
   );
 };

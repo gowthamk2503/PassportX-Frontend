@@ -1,173 +1,62 @@
-// =========================================
-// FRONTEND-ONLY MOCK API (NO BACKEND)
-// =========================================
+import axios from 'axios';
 
+// ✅ FIXED BASE URL
+const API_BASE_URL = "https://passportx-backend-1.onrender.com/api";
 
-// =============== AUTH SERVICE ===============
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// ✅ Attach token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// ✅ Handle response
+api.interceptors.response.use(
+  (response) => {
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
+    if (response.data.user) {
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ================= AUTH =================
 export const authService = {
-
-  signup: async (data) => {
-    console.log("Mock signup:", data);
-
-    return {
-      data: {
-        message: "Signup successful (Demo Mode)"
-      }
-    };
-  },
-
-  login: async (data) => {
-    console.log("Mock login:", data);
-
-    const user = {
-      name: "Demo User",
-      email: data.email || "demo@gmail.com"
-    };
-
-    // Save to localStorage
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", "demo-token");
-
-    return {
-      data: {
-        token: "demo-token",
-        user
-      }
-    };
-  },
-
-  getMe: async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    return {
-      data: user || null
-    };
-  }
+  signup: (data) => api.post('/auth/signup', data),
+  login: (data) => api.post('/auth/login', data),
+  getMe: () => api.get('/auth/me'),
 };
 
-
-// =============== APPLICATION SERVICE ===============
+// ================= APPLICATION =================
 export const applicationService = {
-
-  createApplication: async () => {
-    const newApp = {
-      id: Date.now(),
-      status: "In Progress",
-      createdAt: new Date().toISOString()
-    };
-
-    const apps = JSON.parse(localStorage.getItem("applications")) || [];
-    apps.push(newApp);
-
-    localStorage.setItem("applications", JSON.stringify(apps));
-
-    return { data: newApp };
-  },
-
-  getApplications: async () => {
-    const apps = JSON.parse(localStorage.getItem("applications")) || [];
-    return { data: apps };
-  },
-
-  getApplication: async (applicationId) => {
-    const apps = JSON.parse(localStorage.getItem("applications")) || [];
-    const app = apps.find(a => a.id === applicationId);
-
-    return { data: app || null };
-  },
-
-  updateStep: async (applicationId, step, data) => {
-    console.log("Step update:", { applicationId, step, data });
-
-    return {
-      data: { message: "Step updated (Demo)" }
-    };
-  },
-
-  submitApplication: async (applicationId) => {
-    let apps = JSON.parse(localStorage.getItem("applications")) || [];
-
-    apps = apps.map(app =>
-      app.id === applicationId
-        ? { ...app, status: "Submitted" }
-        : app
-    );
-
-    localStorage.setItem("applications", JSON.stringify(apps));
-
-    return {
-      data: { message: "Application submitted successfully (Demo)" }
-    };
-  },
-
-  uploadDocument: async (applicationId, file, docType) => {
-    console.log("Mock upload:", file, docType);
-
-    return {
-      data: { message: "Document uploaded (Demo)" }
-    };
-  },
-
-  generatePDF: async (applicationId) => {
-    console.log("Generate PDF for:", applicationId);
-
-    return {
-      data: { message: "PDF generated (Demo)" }
-    };
-  },
-
-  downloadPDF: async () => {
-    alert("📄 Demo PDF Download (No real file)");
-
-    return { data: null };
-  },
-
-  updateApplication: async (applicationId, data) => {
-    console.log("Update application:", applicationId, data);
-
-    return {
-      data: { message: "Application updated (Demo)" }
-    };
-  }
+  createApplication: () => api.post('/applications'),
+  getApplications: () => api.get('/applications'),
+  getApplication: (id) => api.get(`/applications/${id}`),
 };
 
-
-// =============== APPOINTMENT SERVICE ===============
+// ================= APPOINTMENT =================
 export const appointmentService = {
-
-  getAvailableSlots: async (date) => {
-    return {
-      data: [
-        "10:00 AM",
-        "11:30 AM",
-        "2:00 PM",
-        "4:00 PM"
-      ]
-    };
-  },
-
-  bookAppointment: async (applicationId, data) => {
-    console.log("Booking appointment:", applicationId, data);
-
-    return {
-      data: { message: "Appointment booked (Demo)" }
-    };
-  },
-
-  getAppointments: async () => {
-    return {
-      data: []
-    };
-  },
-
-  cancelAppointment: async (appointmentId) => {
-    return {
-      data: { message: "Appointment cancelled (Demo)" }
-    };
-  }
+  getAvailableSlots: (date) =>
+    api.get(`/appointments/available-slots?date=${date}`),
 };
 
-
-// =========================================
-// END OF FILE
-// =========================================
+export default api;

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiMail, FiLock, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -33,53 +33,58 @@ const Login = () => {
 
       const res = await authService.login(formData);
 
-      // Save user locally
+      // Save user
       localStorage.setItem("user", JSON.stringify(res.data.user));
       localStorage.setItem("token", res.data.token);
 
       navigate('/dashboard');
 
     } catch (err) {
-      setError("Login failed");
+      setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <Link to="/"><FiArrowLeft /> Back</Link>
+    <div className="l-page">
+      <div className="l-right">
 
-      <h1>Login</h1>
+        <Link to="/" className="l-back-link">
+          <FiArrowLeft /> Back
+        </Link>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <h1>Login</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-          required
-        />
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          autoComplete="current-password"
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            autoComplete="email"
+            required
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
-        </button>
-      </form>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            autoComplete="current-password"
+            required
+          />
 
-      <p>Don't have account? <Link to="/signup">Signup</Link></p>
+          <button type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Login"} <FiArrowRight />
+          </button>
+        </form>
+
+        <p>Don't have account? <Link to="/signup">Signup</Link></p>
+      </div>
     </div>
   );
 };
