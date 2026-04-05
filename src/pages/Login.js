@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/api'; // ✅ mock API
-import { FiMail, FiLock, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { authService } from '../services/api';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,7 +33,9 @@ const Login = () => {
 
       const res = await authService.login(formData);
 
+      // Save user locally
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
 
       navigate('/dashboard');
 
@@ -45,30 +47,39 @@ const Login = () => {
   };
 
   return (
-    <div className="l-page">
-      <div className="l-right">
+    <div style={{ padding: "40px" }}>
+      <Link to="/"><FiArrowLeft /> Back</Link>
 
-        <Link to="/" className="l-back-link">
-          <FiArrowLeft /> Back
-        </Link>
+      <h1>Login</h1>
 
-        <h1>Login</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+          required
+        />
 
-        <form onSubmit={handleSubmit}>
-          <input name="email" placeholder="Email" onChange={handleChange} required />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          autoComplete="current-password"
+          required
+        />
 
-          <input type="password" name="password" placeholder="Password"
-            onChange={handleChange} autoComplete="current-password" required />
+        <button type="submit" disabled={loading}>
+          {loading ? "Signing in..." : "Login"}
+        </button>
+      </form>
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Login"}
-          </button>
-        </form>
-
-        <p>Don't have account? <Link to="/signup">Signup</Link></p>
-      </div>
+      <p>Don't have account? <Link to="/signup">Signup</Link></p>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/api'; // ✅ USE MOCK API
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowLeft, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { authService } from '../services/api';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -26,7 +26,6 @@ const Signup = () => {
     e.preventDefault();
     setError(null);
 
-    // validations
     if (!formData.name || !formData.email || !formData.password || !formData.phone) {
       setError('All fields are required');
       return;
@@ -45,15 +44,14 @@ const Signup = () => {
     try {
       setLoading(true);
 
-      // ✅ MOCK API CALL
       const res = await authService.signup(formData);
 
       alert(res.data.message);
 
-      navigate('/login'); // redirect after signup
+      navigate('/login');
 
     } catch (err) {
-      setError("Something went wrong");
+      setError("Signup failed");
     } finally {
       setLoading(false);
     }
@@ -61,31 +59,58 @@ const Signup = () => {
 
   return (
     <div style={{ padding: "40px" }}>
-      <h2>Create Account</h2>
+      <Link to="/"><FiArrowLeft /> Back</Link>
+
+      <h1>Create Account</h1>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Name" onChange={handleChange} required />
-        <input name="email" placeholder="Email" onChange={handleChange} required />
-        <input name="phone" placeholder="Phone" onChange={handleChange} required />
-
-        <input 
-          type="password" 
-          name="password" 
-          placeholder="Password" 
-          onChange={handleChange} 
-          autoComplete="new-password"
-          required 
+        <input
+          name="name"
+          placeholder="Name"
+          value={formData.name}
+          onChange={handleChange}
+          autoComplete="name"
+          required
         />
 
-        <input 
-          type="password" 
-          name="confirmPassword" 
-          placeholder="Confirm Password" 
-          onChange={handleChange} 
+        <input
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          autoComplete="email"
+          required
+        />
+
+        <input
+          name="phone"
+          placeholder="Phone"
+          value={formData.phone}
+          onChange={handleChange}
+          autoComplete="tel"
+          required
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
           autoComplete="new-password"
-          required 
+          required
+        />
+
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          autoComplete="new-password"
+          required
         />
 
         <button type="submit" disabled={loading}>
