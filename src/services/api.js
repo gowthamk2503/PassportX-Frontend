@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// ✅ FIXED BASE URL
+// ✅ FIXED BASE URL (IMPORTANT)
 const API_BASE_URL = "https://passportx-backend-1.onrender.com/api";
 
 const api = axios.create({
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// ✅ Attach token
+// ✅ Add token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -33,7 +33,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.clear();
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
