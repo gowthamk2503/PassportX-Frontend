@@ -44,7 +44,7 @@ const Signup = () => {
     try {
       setLoading(true);
 
-      const res = await authService.signup(formData);
+      await authService.signup(formData);
 
       alert("Signup successful");
 
